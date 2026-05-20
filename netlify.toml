@@ -1,12 +1,70 @@
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    Cache-Control = "no-cache"
-
-[[headers]]
-  for = "/posts/*.json"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Access-Control-Allow-Origin = "*"
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "【無料/申込不要】図書館前芝生エリアで野外上映会を開催！",
+      "category": "event",
+      "eyebrow": "Campus Cinema",
+      "description": "夕暮れの図書館前芝生エリアが、1日限定の野外シアターに。ピクニック気分で映画を楽しもう！手ぶらで来ても大丈夫です。",
+      "org": "映画研究会 × 図書館",
+      "deadline": "2025-06-05",
+      "date": "2025-05-01",
+      "image": ""
+    },
+    {
+      "id": 2,
+      "title": "第35回大学祭 実行委員・スタッフ募集",
+      "category": "event",
+      "eyebrow": "学園祭 2025",
+      "description": "企画・広報・ステージ・装飾など多様な部門で活躍できます。未経験者歓迎！興味のある人はお気軽にご連絡ください。",
+      "org": "大学祭実行委員会",
+      "deadline": "2025-05-31",
+      "date": "2025-04-28",
+      "image": ""
+    },
+    {
+      "id": 3,
+      "title": "春季スポーツ大会 参加者募集",
+      "category": "event",
+      "eyebrow": "Campus Sports",
+      "description": "バスケ・バレー・卓球など5種目。部活・サークル単位でも個人参加でもOK。景品あり！",
+      "org": "体育会本部",
+      "deadline": "2025-06-01",
+      "date": "2025-04-25",
+      "image": ""
+    },
+    {
+      "id": 4,
+      "title": "キャンパス スクリーンボランティア募集",
+      "category": "circle",
+      "eyebrow": "ボランティア",
+      "description": "野外上映会のスクリーン設営・撤去を手伝ってくれるボランティアを募集しています。当日の参加費は無料です。",
+      "org": "映画研究会",
+      "deadline": "2025-05-25",
+      "date": "2025-04-20",
+      "image": ""
+    },
+    {
+      "id": 5,
+      "title": "軽音楽部 新入部員大募集！",
+      "category": "circle",
+      "eyebrow": "サークル",
+      "description": "ジャンル問わず歓迎。楽器未経験者でも始められます。4月末まで体験参加OK。週2回の練習あり。",
+      "org": "軽音楽部",
+      "deadline": "2025-04-30",
+      "date": "2025-04-18",
+      "image": ""
+    },
+    {
+      "id": 6,
+      "title": "写真部 春の作品展「光の記憶」開催",
+      "category": "circle",
+      "eyebrow": "サークル展示",
+      "description": "5/20〜5/25 ギャラリー棟にて。部員の作品を無料でご覧いただけます。入場自由です。",
+      "org": "写真部",
+      "deadline": "2025-05-25",
+      "date": "2025-04-15",
+      "image": ""
+    }
+  ]
+}
