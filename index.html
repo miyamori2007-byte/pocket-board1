@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pocket Board — キャンパスデジタル掲示板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #378ADD;
+    --blue-dark: #185FA5;
+    --blue-light: #E6F1FB;
+    --purple: #534AB7;
+    --teal: #0F6E56;
+    --coral: #993C1D;
+    --pink: #993556;
+    --amber: #854F0B;
+    --green: #3B6D11;
+    --bg: #F5F5F0;
+    --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --text-primary: #1A1A1A;
+    --text-secondary: #555;
+    --text-muted: #999;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo-area { display: flex; flex-direction: column; gap: 1px; }
+  .logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+  .logo-main { font-size: 22px; font-weight: 700; color: var(--text-primary); font-family: 'Inter', sans-serif; line-height: 1; }
+  .logo-main span { font-size: 12px; font-weight: 400; color: var(--blue); margin-left: 6px; font-family: 'Noto Sans JP', sans-serif; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .admin-link {
+    font-size: 12px; color: var(--text-muted); text-decoration: none;
+    padding: 6px 12px; border: 1px solid var(--border); border-radius: 100px;
+    transition: all 0.15s;
+  }
+  .admin-link:hover { color: var(--blue); border-color: var(--blue); }
+
+  /* TABS */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .tabs-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 0 20px;
+    display: flex; gap: 0;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 14px 18px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-muted);
+    border: none; background: none; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab-btn:hover:not(.active) { color: var(--text-secondary); }
+
+  /* MAIN */
+  .main { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* GRID */
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+  /* CARD */
+  .post-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+  }
+  .post-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+
+  .card-banner {
+    height: 140px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-banner-img {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+  }
+  .card-banner-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%);
+  }
+  .card-banner-content { position: relative; z-index: 1; }
+  .card-eyebrow { font-size: 10px; color: rgba(255,255,255,0.75); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Inter', sans-serif; margin-bottom: 3px; }
+  .card-banner-title { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.3; }
+
+  .banner-solid { background: var(--color, #378ADD); }
+
+  .card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; }
+  .card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .tag {
+    font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 500;
+  }
+  .tag-event { background: #E6F1FB; color: #185FA5; }
+  .tag-circle { background: #FBEAF0; color: #993556; }
+  .deadline { font-size: 11px; color: var(--text-muted); }
+  .card-title { font-size: 14px; font-weight: 700; line-height: 1.5; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; flex: 1; }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .card-org { font-size: 11px; color: var(--text-muted); }
+  .card-cta { font-size: 12px; color: var(--blue); font-weight: 500; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center; padding: 80px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state p { font-size: 15px; margin-top: 8px; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    max-width: 560px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 28px;
+  }
+  .modal-tag { margin-bottom: 12px; }
+  .modal-title { font-size: 22px; font-weight: 700; line-height: 1.4; margin-bottom: 10px; }
+  .modal-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; display: flex; gap: 16px; }
+  .modal-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.8; }
+  .modal-close {
+    margin-top: 24px; width: 100%;
+    padding: 12px; border: 1px solid var(--border);
+    border-radius: var(--radius-md); background: none;
+    cursor: pointer; font-size: 14px; color: var(--text-secondary);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--bg); }
+
+  /* BANNER COLORS */
+  .bc-0 { --color: #534AB7; }
+  .bc-1 { --color: #0F6E56; }
+  .bc-2 { --color: #993C1D; }
+  .bc-3 { --color: #185FA5; }
+  .bc-4 { --color: #993556; }
+  .bc-5 { --color: #854F0B; }
+  .bc-6 { --color: #3B6D11; }
+
+  @media (max-width: 600px) {
+    .header-inner { padding: 12px 14px; }
+    .main { padding: 16px 12px 60px; }
+    .posts-grid { grid-template-columns: 1fr; }
+    .modal { padding: 20px; border-radius: var(--radius-lg); }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <span class="logo-sub">Campus Digital Board</span>
+      <span class="logo-main">Pocket Board <span>AI 1.0</span></span>
+    </div>
+    <div class="header-actions">
+      <a href="/admin/" class="admin-link">管理者ログイン</a>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-filter="all">すべて</button>
+    <button class="tab-btn" data-filter="event">📅 イベント・行事</button>
+    <button class="tab-btn" data-filter="circle">🌸 サークル・学生発信</button>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="posts-grid" id="posts-grid">
+    <div class="empty-state"><p>読み込み中…</p></div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content">
+    <div class="modal-tag"></div>
+    <div class="modal-title"></div>
+    <div class="modal-meta"></div>
+    <div class="modal-desc"></div>
+    <button class="modal-close" onclick="closeModal()">閉じる</button>
+  </div>
+</div>
+
+<script>
+const COLORS = ['bc-0','bc-1','bc-2','bc-3','bc-4','bc-5','bc-6'];
+let allPosts = [];
+let currentFilter = 'all';
+
+async function loadPosts() {
+  try {
+    const res = await fetch('/posts/posts.json?t=' + Date.now());
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    allPosts = (data.posts || []).sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+  } catch(e) {
+    allPosts = getSamplePosts();
+  }
+  renderPosts();
+}
+
+function getSamplePosts() {
+  return [
+    { id:1, title:'【無料/申込不要】図書館前芝生エリアで野外上映会を開催！', category:'event', eyebrow:'Campus Cinema', description:'夕暮れの図書館前芝生エリアが、1日限定の野外シアターに。ピクニック気分で映画を楽しもう！', org:'映画研究会 × 図書館', deadline:'2025-06-05', date:'2025-05-01' },
+    { id:2, title:'第35回大学祭 実行委員・スタッフ募集', category:'event', eyebrow:'学園祭 2025', description:'企画・広報・ステージ・装飾など多様な部門で活躍できます。未経験者歓迎！', org:'大学祭実行委員会', deadline:'2025-05-31', date:'2025-04-28' },
+    { id:3, title:'春季スポーツ大会 参加者募集（バスケ・バレー・卓球ほか）', category:'event', eyebrow:'Campus Sports', description:'部活・サークル単位でも個人参加でもOK。景品あり！', org:'体育会本部', deadline:'2025-06-01', date:'2025-04-25' },
+    { id:4, title:'キャンパス スクリーンボランティア募集', category:'circle', eyebrow:'ボランティア', description:'野外上映会のスクリーン設営・撤去を手伝ってくれるボランティアを募集しています。', org:'映画研究会', deadline:'2025-05-25', date:'2025-04-20' },
+    { id:5, title:'軽音楽部 新入部員大募集！4月末まで体験参加OK', category:'circle', eyebrow:'サークル', description:'ジャンル問わず歓迎。楽器未経験者でも始められます。週2回の練習あり。', org:'軽音楽部', deadline:'2025-04-30', date:'2025-04-18' },
+    { id:6, title:'写真部 春の作品展「光の記憶」開催', category:'circle', eyebrow:'サークル展示', description:'5/20〜5/25 ギャラリー棟にて。部員の作品を無料でご覧いただけます。', org:'写真部', deadline:'2025-05-25', date:'2025-04-15' },
+  ];
+}
+
+function formatDeadline(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return `期限: ${d.getMonth()+1}月${d.getDate()}日`;
+}
+
+function renderPosts() {
+  const grid = document.getElementById('posts-grid');
+  const filtered = currentFilter === 'all' ? allPosts : allPosts.filter(p => p.category === currentFilter);
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state"><p>投稿がありません</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map((post, i) => {
+    const tagClass = post.category === 'event' ? 'tag-event' : 'tag-circle';
+    const tagLabel = post.category === 'event' ? 'イベント・行事' : 'サークル・学生発信';
+    const colorClass = COLORS[i % COLORS.length];
+    const bannerHtml = post.image
+      ? `<div class="card-banner-img" style="background-image:url('${post.image}')"></div><div class="card-banner-overlay"></div>`
+      : `<div class="card-banner-img banner-solid ${colorClass}" style="background:var(--color)"></div>`;
+    return `
+    <div class="post-card" onclick="openModal(${post.id})" tabindex="0">
+      <div class="card-banner ${colorClass}">
+        ${bannerHtml}
+        <div class="card-banner-content">
+          ${post.eyebrow ? `<div class="card-eyebrow">${post.eyebrow}</div>` : ''}
+          <div class="card-banner-title">${post.title}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="tag ${tagClass}">${tagLabel}</span>
+          <span class="deadline">${formatDeadline(post.deadline)}</span>
+        </div>
+        <div class="card-desc">${post.description}</div>
+        <div class="card-footer">
+          <span class="card-org">${post.org || ''}</span>
+          <span class="card-cta">詳しく見る →</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(id) {
+  const post = allPosts.find(p => p.id == id);
+  if (!post) return;
+  const m = document.getElementById('modal-content');
+  const tagClass = post.category === 'event' ? 'tag-event' : 'tag-circle';
+  const tagLabel = post.category === 'event' ? 'イベント・行事' : 'サークル・学生発信';
+  m.querySelector('.modal-tag').innerHTML = `<span class="tag ${tagClass}">${tagLabel}</span>`;
+  m.querySelector('.modal-title').textContent = post.title;
+  m.querySelector('.modal-meta').innerHTML = `
+    ${post.org ? `<span>🏢 ${post.org}</span>` : ''}
+    ${post.deadline ? `<span>📅 ${formatDeadline(post.deadline)}</span>` : ''}
+  `;
+  m.querySelector('.modal-desc').textContent = post.description || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderPosts();
+  });
+});
+
+loadPosts();
+</script>
+</body>
+</html>
